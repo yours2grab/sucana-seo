@@ -417,7 +417,53 @@ Step 4: Ask Claude to ask you questions to refine.
 
 ---
 
+## STANDING RULE: SHOW THE FULL ARTICLE IN CHAT AFTER EVERY CHANGE
+
+**This applies everywhere in the pipeline — not just Step 8.**
+
+Every time you edit the article file for any reason — story rewrite, step edit, heading change, FAQ addition, bash fix — you MUST output the full article text in chat immediately after saving.
+
+Do NOT use the Read tool. Output the markdown directly in your response message.
+
+Do NOT say "here are the changes" and show only the edited section. Show the whole article every time.
+
+If the article is long, split across two messages. Virgil must see every word without clicking anything.
+
+**No exceptions. No "I updated the file" without showing it.**
+
+---
+
 ## Step 5: Write the Article
+
+### WRITING RULES — Read Before Every Sentence
+
+These are corrections from Virgil. Each one is a mistake that was made and corrected. Do not repeat them. This list is updated after every article.
+
+**Last updated:** 2026-03-14
+
+1. **Never use vague category words without the specific modifier.** "Agency" alone is meaningless. "Tool" alone is meaningless. Always specify what kind. "Marketing agency." "Reporting tool." "Analytics platform." The reader should never have to guess.
+
+2. **Opening sentences must be concrete actions, not clever phrases.** Never start an article with something abstract or poetic. Start with what to do. "Start with X" beats "Not with Y, with Z" every time.
+
+3. **H2 headings are 8 words maximum.** Short, punchy, like a hook.
+
+4. **Titles must match what the article actually teaches.** If the article is about improving something that already exists, do not title it as if you are building something new. The title sets the expectation. The content must deliver exactly that.
+
+5. **"Where to Start" and actionable sections must be universally applicable.** Do not assume the reader works in a specific niche. Use general examples that work for any reader in the target audience.
+
+6. **No brand name in title tags.** No SEO value for a new domain with no brand recognition. Drop "| Sucana" or any brand suffix.
+
+7. **All publish dates must be unique.** Never deploy two articles on the same date.
+
+8. **Always show the full article in chat after every change.** Output every word as markdown in the response. Do not use the Read tool (collapses in VSCode). No exceptions.
+
+9. **Pillar pages link to ALL cluster articles in their pillar. Every cluster article links back.** After deploying a pillar page, run retroactive linking immediately.
+
+10. **Do not write steps that assume niche-specific tools or workflows.** If the article is for a broad audience, use examples any reader would recognize. Only use niche-specific references when the article is explicitly about that niche.
+
+**How to update this list:** When Virgil corrects something during an article session, add the correction here as a new numbered rule immediately. Do not wait until end of session. Cap at 25-30 rules. Merge similar rules. Only remove a rule when it has been absorbed into an automated bash check.
+
+---
 
 **Structure every article with these sections:**
 
@@ -478,9 +524,103 @@ Rules:
 
 After opening is confirmed, write the full article hitting the word count target from the CSV.
 
-**Start with** the confirmed opening H2 + answer from Step 5a, then add the story, then the full body.
-
 **Do NOT write the FAQ section in this step — that's Step 5c.**
+
+---
+
+#### FIXED ARTICLE TEMPLATE — follow this order every time, no exceptions
+
+**1. H2 question + direct answer (2-3 sentences)**
+
+The very first H2 is the question the article answers. Directly below it: 2-3 sentences that answer the question. Short, direct, no fluff.
+
+**2. Story H2 heading + Sucana story (BEFORE the steps)**
+
+The story section MUST have its own H2 heading. Always. No exceptions. The heading goes directly above the story, after the opening answer.
+
+The heading must be sharp, specific, and **8 words maximum** — it names what happened, not a generic label. Examples:
+- "## What I Found in ChatGPT"
+- "## The Call That Changed Our Pricing"
+- "## Victor Ran the Numbers. I Froze."
+
+Never: "## The Story" or "## Background" or "## My Experience."
+
+Then the story follows under that heading. Every how-to article needs a real story from building Sucana — sourced from content-ideas.md — before the guide begins. Not a client story. Not a made-up anecdote. A real moment: something that happened, something Virgil tested, a conversation with Vinod or Victor, a problem they hit, a result they saw.
+
+The story must have:
+- A real moment (what happened)
+- Tension or a problem (what was wrong or unknown)
+- What Virgil did or discovered
+- One sentence that lands the big idea before the steps start
+
+The story sits between the opening answer and Step 1. It is the emotional reason to keep reading. The steps are the practical payoff.
+
+**WRONG (no story, jumps straight to steps):**
+```
+Most agencies are losing traffic to AI search. Here is what to do about it.
+
+## Step 1: Pull your traffic data
+```
+
+**CORRECT (story H2 heading + story, then steps):**
+```
+## How Are Digital Marketing Agencies Adapting to AI Search?
+
+Most are not. That's the honest answer. The agencies moving fast made one call: stop treating Google as the only game.
+
+## What I Saw When I Searched for Sucana in ChatGPT
+
+When we started building Sucana, I typed our five core questions into ChatGPT and Perplexity...
+
+[3-5 paragraphs of real story — real tension, real discovery, real result]
+
+Structure matters more than volume.
+
+Here is the process, in order.
+
+## Step 1: Pull your traffic data
+```
+
+THE STRUCTURE IS ALWAYS:
+1. H2 question (the article's main question)
+2. 2-3 sentence direct answer
+3. **H2 story heading** (sharp, specific — names what happened)
+4. Story text (3-5 paragraphs from content-ideas.md)
+5. One big idea sentence
+6. Transition line
+7. Steps
+8. FAQ
+
+**3. One big idea (stated before the steps start)**
+
+End the story section with one sentence that names the core insight. This is the thing the reader should remember even if they forget the steps. Example: "Structure matters more than volume." Or: "The problem is not the content. It is where the answer lives inside the content."
+
+**4. Transition line**
+
+One short line that moves from the story into the guide. Examples:
+- "Here is the process, in order."
+- "Here is what I did, step by step."
+- "Here is the system."
+
+**5. Steps**
+
+Each step follows this pattern — write it like a friend explaining, never like an IKEA manual:
+
+```
+## Step N: [Action Title]
+
+[What to do — 2-3 sentences conversational, not clinical]
+
+[Why it works — one sentence]
+
+[What happened when I did it — real result, real number if available]
+```
+
+Never write numbered sub-bullets inside a step. Never start a step with "First, you should." Talk through it. The result is the proof.
+
+**6. FAQ (10 questions minimum — Step 5c)**
+
+---
 
 **IMPORTANT — Image Placement Planning:**
 While writing the article, identify **2-3 spots** where an image would add real value to the reader. Mark these spots with image placeholders. Good image locations are:
@@ -503,9 +643,10 @@ Number them sequentially: `placeholder-image-1.png`, `placeholder-image-2.png`, 
 
 1. **Question H2 first**: The very first H2 is a question that directly matches the article's topic. The 2-3 sentences below it directly answer that question. Story comes after the answer, never before.
 
-2. **Question-based H2 headings**: Use headings that mirror natural language queries.
-   - Good: `## How Much Does a PPC Dashboard Cost?`
+2. **Question-based H2 headings**: Use headings that mirror natural language queries. **All H2 headings must be 8 words maximum.** Short, punchy, like a hook.
+   - Good: `## How Much Does a Dashboard Cost?`
    - Bad: `## Pricing Information`
+   - Bad: `## How Much Does a PPC Dashboard Cost for Your Agency?` (too long)
 
 3. **Use H2 for main sections, H3 for subsections.** Never skip levels.
 
@@ -896,6 +1037,43 @@ fi
 
 # CHECK 3: Word count
 echo "Word count:" && wc -w < "$ARTICLE_PATH"
+
+# CHECK 3c: H2 WORD COUNT — all H2 headings must be 8 words maximum
+echo "H2 word count check:"
+H2_LONG=$(python3 -c "
+import re
+lines = open('$ARTICLE_PATH').readlines()
+fails = []
+for i, line in enumerate(lines):
+    if line.startswith('## '):
+        heading = line.strip().lstrip('# ').strip()
+        wc = len(heading.split())
+        if wc > 8:
+            fails.append((i+1, wc, heading))
+for f in fails:
+    print(f'  Line {f[0]}: [{f[1]} words] {f[2]}')
+print(f'LONG H2 COUNT: {len(fails)}')
+" 2>/dev/null)
+echo "$H2_LONG"
+LONG_H2_COUNT=$(echo "$H2_LONG" | grep "LONG H2 COUNT:" | grep -o "[0-9]*" || echo "0")
+if [ "$LONG_H2_COUNT" -gt 0 ] 2>/dev/null; then
+  echo "❌ FAIL: $LONG_H2_COUNT H2 heading(s) over 8 words. Shorten every H2 to 8 words max. Do not proceed until fixed."
+else
+  echo "✅ PASS: All H2 headings are 8 words or under."
+fi
+
+# CHECK 3b: STORY H2 HEADING — the second H2 must be a specific story heading, not a step and not a generic label
+SECOND_H2=$(grep -n "^## " "$ARTICLE_PATH" | sed -n '2p')
+SECOND_H2_TEXT=$(echo "$SECOND_H2" | cut -d: -f2-)
+echo "Second H2: $SECOND_H2_TEXT"
+# Fail if second H2 starts with "Step" or is a generic label
+if echo "$SECOND_H2_TEXT" | grep -qiE "^## Step |^## Background|^## The Story|^## My Experience|^## Introduction|^## Overview|^## Context"; then
+  echo "❌ FAIL: Second H2 is a step or generic label — '$SECOND_H2_TEXT'. The second H2 MUST be a sharp, specific story heading (e.g. '## What I Saw When I Searched for Sucana in ChatGPT'). Do not proceed until fixed."
+elif [ -z "$SECOND_H2_TEXT" ]; then
+  echo "❌ FAIL: No second H2 found. Every article needs a story H2 heading immediately after the opening Q&A. Do not proceed until fixed."
+else
+  echo "✅ PASS: Story H2 present: $SECOND_H2_TEXT"
+fi
 
 # CHECK 4: QUESTION FIRST — detect any non-blank paragraph before the first ## heading
 FIRST_H2_LINE=$(grep -n "^## " "$ARTICLE_PATH" | head -1 | cut -d: -f1)
@@ -1353,42 +1531,53 @@ Once the concept is approved, build the full JSON using the nano_banana_image.md
 Save JSON to:
 `/Users/virgilbrewster/My Drive/Sucana/Sucana Agents/Ad Image Generator/prompts/blog/{slug}-cover.json`
 
-### 10d: Generate 3 Variants
+### 10d: Generate 3 Variants Using Nano Banana MCP
 
-```bash
-cd "/Users/virgilbrewster/My Drive/Sucana/Sucana Agents/Ad Image Generator" && python3 scripts/generate.py --count 3 "prompts/blog/{slug}-cover.json"
-```
+**DO NOT use generate.py — it does not exist. Use the mcp__plugin_creative_nano-banana__generate_image tool directly.**
 
-Output saves to: `images/blog/{slug}-cover_v1.png`, `_v2.png`, `_v3.png`
+Call it 3 times with the same prompt (slight wording variations are fine). Each call saves to `/Users/virgilbrewster/My Drive/Sucana/generated_imgs/` with a timestamp filename. **Note the exact saved path from each MCP response output — you will need it for the Read tool.**
 
 ### 10e: Show All 3 Variants to Virgil
 
-**MANDATORY: OPEN THE IMAGES SO VIRGIL CAN SEE THEM. Every single time. No exceptions. Do not describe them. Do not link them. OPEN THEM.**
+**⚠️ HARD RULE: After all 3 variants are generated, write an HTML preview file and open it in the browser. This is the ONLY reliable way Virgil sees the images. Do NOT skip this. Do NOT describe the images in text. OPEN THE HTML.**
 
-Run `open` on each image file so it opens in macOS Preview:
+After all 3 generate_image calls, note the 3 saved paths from the MCP outputs. Then run this Python to write and open the preview:
 
 ```bash
-open "/Users/virgilbrewster/My Drive/Sucana/Sucana Agents/Ad Image Generator/images/blog/{slug}-cover_v1.png"
-open "/Users/virgilbrewster/My Drive/Sucana/Sucana Agents/Ad Image Generator/images/blog/{slug}-cover_v2.png"
-open "/Users/virgilbrewster/My Drive/Sucana/Sucana Agents/Ad Image Generator/images/blog/{slug}-cover_v3.png"
-```
+python3 << 'PYEOF'
+slug = "{slug}"
+article_number = {N}
+path_v1 = "/Users/virgilbrewster/My Drive/Sucana/generated_imgs/{filename_v1}"
+path_v2 = "/Users/virgilbrewster/My Drive/Sucana/generated_imgs/{filename_v2}"
+path_v3 = "/Users/virgilbrewster/My Drive/Sucana/generated_imgs/{filename_v3}"
 
-Also use the Read tool on each PNG so the image displays inline in chat:
+html = f"""<!DOCTYPE html>
+<html><head><style>
+body {{ background: #111; font-family: sans-serif; color: white; padding: 40px; }}
+h1 {{ font-size: 18px; margin-bottom: 30px; color: #aaa; }}
+.variant {{ margin-bottom: 50px; }}
+.variant h2 {{ font-size: 14px; color: #888; margin-bottom: 10px; }}
+img {{ width: 100%; max-width: 960px; border-radius: 8px; display: block; }}
+</style></head><body>
+<h1>Hero Cover Variants — Article #{article_number}</h1>
+<div class="variant"><h2>Variant 1</h2><img src="{path_v1}"></div>
+<div class="variant"><h2>Variant 2</h2><img src="{path_v2}"></div>
+<div class="variant"><h2>Variant 3</h2><img src="{path_v3}"></div>
+</body></html>"""
 
-```
-Read: /Users/virgilbrewster/My Drive/Sucana/Sucana Agents/Ad Image Generator/images/blog/{slug}-cover_v1.png
-Read: /Users/virgilbrewster/My Drive/Sucana/Sucana Agents/Ad Image Generator/images/blog/{slug}-cover_v2.png
-Read: /Users/virgilbrewster/My Drive/Sucana/Sucana Agents/Ad Image Generator/images/blog/{slug}-cover_v3.png
+html_path = f"/Users/virgilbrewster/My Drive/Sucana/Marketing/SEO/articles/images/preview-{slug}-covers.html"
+with open(html_path, 'w') as f:
+    f.write(html)
+print(f"HTML written to: {html_path}")
+PYEOF
+
+open "/Users/virgilbrewster/My Drive/Sucana/Marketing/SEO/articles/images/preview-{slug}-covers.html"
 ```
 
 Then output:
-
 ```
 HERO COVER VARIANTS: Article #[number]
-
-Variant 1: [image displayed above]
-Variant 2: [image displayed above]
-Variant 3: [image displayed above]
+Preview opened in your browser — all 3 variants visible.
 
 Which one? (1, 2, or 3 — or say regenerate for new variants)
 ```
