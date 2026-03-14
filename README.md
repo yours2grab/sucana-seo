@@ -127,3 +127,7 @@ Drop `SKILL.md` into your `.claude/skills/seo/` directory.
 - Fireflies MCP (for meeting transcript search)
 - GitHub access to the deployment repo
 - Vercel connected to the repo for auto-deploy
+
+## Credits
+
+Built by Virgil Brewster at [Sucana](https://sucana.ai) — AI-powered content and analytics for B2B SaaS.
