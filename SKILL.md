@@ -1,56 +1,64 @@
 ---
 name: sucana-seo
-description: "Sucana SEO — SEO article production pipeline for Sucana. MANDATORY triggers on: SEO, seo, write article, next article, SEO article, seo article, start article, article pipeline. Reads SEO strategy research, finds the next unwritten article from the Production System CSV, runs keyword research to validate and enrich targeting before writing, loads Virgil's voice via Virgil_Voice_MASTER.md, searches Fireflies transcripts for real stories, writes the full article dual-optimized for Google AND LLM citation, generates 2 Plotly charts (brand colors) per article, generates a photorealistic hero cover image via Nanobanana (3 variants, Virgil picks one), shows for review, and on approval converts to MDX, pushes to GitHub, and Vercel auto-deploys to sucana.ai/blog. Complete end-to-end SEO content production system."
+description: "Sucana SEO — SEO article production pipeline for Sucana. MANDATORY triggers on: SEO, seo, write article, next article, SEO article, seo article, start article, article pipeline. Reads SEO strategy research, finds the next unwritten article from the Production System CSV, runs keyword research to validate and enrich targeting before writing, loads Virgil's voice via the Writer skill, searches Fireflies transcripts for real stories, writes the full article dual-optimized for Google AND LLM citation, generates 2 Plotly charts (brand colors) per article, generates a photorealistic hero cover image via Nanobanana (3 variants, Virgil picks one), shows for review, and on approval converts to MDX, pushes to GitHub, and Vercel auto-deploys to sucana.ai/blog. Complete end-to-end SEO content production system."
 ---
 
 # SEO Article Production Pipeline
 
 Write SEO articles for Sucana in Virgil's voice, dual-optimized for Google ranking AND LLM citation. Full pipeline from brief to live on sucana.ai/blog.
 
-This skill manages the full pipeline from brief to published article, tracking progress across 80 planned articles.
+This skill manages the full pipeline from brief to published article, tracking progress across 100 planned articles.
 
 ---
 
 ## Step 1: Load SEO Strategy Context
 
-**Read this file first to confirm current pillar strategy:**
+**Content Strategy (no file read — pillars are here):**
 
-- Read `Marketing/SEO/SEO_GEO_Playbook.md` — sections "Content Pillars" and "80-Article Plan"
-
-**The 4 content pillars (from SEO_GEO_Playbook.md):**
-
-- **P1 — AI for Performance Marketing:** How AI changes running paid ads, optimizing ROAS, building audiences. Real campaign data, real before-and-afters. Primary keyword territory: AI Google Ads, ChatGPT ads, AI Meta ads.
-- **P2 — AI Workflows for Marketers:** Real tool reviews, automations built, workflows tested. Always first-person: "I built this, here's what happened." Primary keyword territory: AI marketing workflow, marketing automation AI.
-- **P3 — AI-Powered Marketing Org:** The Sucana story. How AI reshapes teams, roles, hiring, and economics. For founders and agency owners building AI-native teams. Primary keyword territory: AI agency automation.
-- **P4 — Experiments and Results:** Documentary content. We tried something, here's what happened. Real numbers, real outcomes, no theory. Primary keyword territory: AI marketing tools, specific test results.
-
-**Category and tag defaults by pillar:**
-- P1 → category: `industry-insights` | tags: `["ai", "media-buying", "agencies", "roas"]`
-- P2 → category: `guides` | tags: `["ai", "automation", "agencies"]`
-- P3 → category: `guides` | tags: `["ai", "agencies", "automation"]`
-- P4 → category: `industry-insights` | tags: `["ai", "analytics", "agencies"]`
+- **Pillar 1 — AI tools and workflows for marketers:** Real tool reviews, automations built, workflows tested. Always first-person: "I used this to do X, here's what happened."
+- **Pillar 2 — Performance marketing meets AI:** How AI changes running ads, building audiences, optimizing spend. Real campaign data, real before-and-afters.
+- **Pillar 3 — Building an AI-powered business:** The Sucana story. Decisions, mistakes, wins. For the founder/agency-owner types who want to understand how AI products are made.
+- **Pillar 4 — The future of marketing work:** How AI reshapes teams, roles, hiring, and economics. What does the marketing team of 2027 look like?
+- **Pillar 5 — Experiments and results from Sucana Lab:** Documentary content. We tried something, here's what happened. No theory — just results.
 
 90% education and value across pillars. 10% Sucana-specific (and even that is story, not pitch).
 
 **Read this file:**
 
 1. **Production System:** `Marketing/SEO/Article_Production_System.xlsx`
-   - Find the NEXT article to write: filter for Status = "Not Started"
-   - **Pillar balance check:** Look at the last 4 published/in-progress articles. If 3 or more are from the same pillar, skip to the next not-started article from a different pillar instead of always taking the lowest number.
-   - Extract the full brief from these columns: # (A), Topic/Question (B), Primary Keyword (C), Pillar (D), Source (E), Demand (F), Difficulty (H), Opportunity (I), Format (J), LLM Query Target (Q), Word Count Target (R), Schema Type (S)
+   - Find the NEXT article to write: filter for Status = "Not Started", pick row #1 (lowest # = highest priority)
+   - Extract the full brief: Topic/Question, Primary Keyword, Pillar, Source, Demand, Difficulty, Opportunity, Format
 
-2. **Show the brief to Virgil** before writing:
+2. **Detect how-to articles (automatic, no user input needed):**
+
+   Check if this article should use the how-to-draft format instead of the standard article flow:
+
+   **Signal 1 — Format column:** If the Format field from the CSV matches any of these, flag as how-to: `How-to guide`, `Tutorial`, `Step-by-step`, `Workflow walkthrough`, `SOP-style workflow`, `Step-by-step guide`, `Step-by-step tutorial`, `Step-by-step with examples`, `Workflow article`
+
+   **Signal 2 — Title:** If the title contains "How to", "How I", "How We", "Guide to", "Steps to", or "Build a" AND the topic involves a tool, skill, or workflow being built, flag as how-to.
+
+   If flagged as how-to, scan for an existing how-to-draft source file:
+   - Search `Marketing/Newsletter/Content/how-we-built-*.md` for a file matching the article topic
+   - Search `Virgil Second Brain/Content/Blog Content/how-we-built-*.md` for a file matching the article topic
+   - If found, store the path as `HOW_TO_SOURCE_DRAFT`
+
+   Set the article path:
+   - If how-to + draft found: `Article Path: How-To (source draft at [path])`
+   - If how-to + no draft: `Article Path: How-To (from scratch)`
+   - If not how-to: `Article Path: Standard`
+
+3. **Show the brief to Virgil** before writing:
    ```
    NEXT ARTICLE: #[number]
-   Title: [title from column B]
-   Pillar: [P1/P2/P3/P4 from column D] | Format: [from column J]
-   Google Keyword: [from column C]
-   LLM Query Target: [from column Q — if blank, derive from article topic]
-   Word Count Target: [from column R — default 2000 if blank]
-   Demand: [column F] | Difficulty: [column H] | Opportunity: [column I]
-   Schema: [from column S — default Article if blank]
-   Category: [derived from pillar — see pillar defaults above]
-   Tags: [derived from pillar — see pillar defaults above]
+   Title: [title]
+   Type: [article type] | Pillar: [pillar]
+   Article Path: [How-To (source draft at path) / How-To (from scratch) / Standard]
+   Google Keyword: [keyword]
+   LLM Query Target: [query]
+   Word Count: [target]
+   Google Intent: [intent type]
+   LLM Citation Goal: [citation goal]
+   Schema: [schema type]
 
    Ready to write?
    ```
@@ -191,12 +199,43 @@ Proceed with writing?
 
 ---
 
+## Step 2.5: Load How-To Source Draft (CONDITIONAL)
+
+**Only run this step if the article was flagged as how-to in Step 1.** If Article Path = "Standard", skip to Step 3.
+
+### If a source draft exists (Article Path = "How-To (source draft at [path])"):
+
+1. Read the how-to-draft .md file from the path detected in Step 1
+2. Extract every stage: count them, list the stage titles
+3. For each stage, extract:
+   - The prompt (what the user typed into Claude)
+   - The result (what came back)
+   - The test (what was checked and what was found)
+   - The "why" (one sentence)
+   - Any direction changes
+4. If a PRODUCT.md exists in the same skill folder, read it and cross-reference: every feature in the PRODUCT.md should map to a stage in the draft
+5. Show in chat:
+   ```
+   HOW-TO SOURCE DRAFT LOADED
+   File: [path]
+   Stages found: X
+   PRODUCT.md: [found at path / not found]
+   Features covered: Y/Z (if PRODUCT.md exists)
+   ```
+
+### If no source draft exists (Article Path = "How-To (from scratch)"):
+
+1. Show in chat: "No existing how-to draft found. Will write the how-to sections from scratch using the how-to-draft format."
+2. The how-to format rules from Step 5b (Pattern 8: How-To) will guide the writing. No source material needed.
+
+---
+
 ## Step 3: Load Virgil's Voice
 
 **Read the voice profile:**
 
 - **Virgil_Voice_MASTER.md** at `Soul/Virgil_Voice/Virgil_Voice_MASTER.md` — read in full. This is the single authoritative voice file (596 lines). Contains complete voice context, Long-Form Voice Rules, People rules, and fresh story requirement. Do NOT read FINAL or COMPLETE.
-- **Virgil_Writing_Examples.md** at `Soul/Virgil_Voice/Virgil_Writing_Examples.md` — read in full. Real writing samples from Virgil showing the voice in practice. Study the rhythm, the one-line punches, the cultural references, the vulnerability, and the concrete details. The MASTER file tells you the rules. This file shows you what the voice sounds like.
+- **Virgil_Writing_Examples.md** at `Soul/Virgil_Voice/Blog Writing Examples.md` — read in full. Real writing samples from Virgil showing the voice in practice. Study the rhythm, the one-line punches, the cultural references, the vulnerability, and the concrete details. The MASTER file tells you the rules. This file shows you what the voice sounds like.
 
 **Key voice rules for long-form SEO articles:**
 - First-person narrative throughout — "I" not "we" (except "Victor and I", "Vinod and I")
@@ -206,7 +245,7 @@ Proceed with writing?
 - Conversational tone, not textbook
 - Compression over long-winded explanations
 
-**BANNED PHRASES:**
+**BANNED PHRASES (from Writer skill):**
 - "Here's the thing"
 - "Here's why/how/what"
 - "This is where [X] gets made"
@@ -417,53 +456,7 @@ Step 4: Ask Claude to ask you questions to refine.
 
 ---
 
-## STANDING RULE: SHOW THE FULL ARTICLE IN CHAT AFTER EVERY CHANGE
-
-**This applies everywhere in the pipeline — not just Step 8.**
-
-Every time you edit the article file for any reason — story rewrite, step edit, heading change, FAQ addition, bash fix — you MUST output the full article text in chat immediately after saving.
-
-Do NOT use the Read tool. Output the markdown directly in your response message.
-
-Do NOT say "here are the changes" and show only the edited section. Show the whole article every time.
-
-If the article is long, split across two messages. Virgil must see every word without clicking anything.
-
-**No exceptions. No "I updated the file" without showing it.**
-
----
-
 ## Step 5: Write the Article
-
-### WRITING RULES — Read Before Every Sentence
-
-These are corrections from Virgil. Each one is a mistake that was made and corrected. Do not repeat them. This list is updated after every article.
-
-**Last updated:** 2026-03-14
-
-1. **Never use vague category words without the specific modifier.** "Agency" alone is meaningless. "Tool" alone is meaningless. Always specify what kind. "Marketing agency." "Reporting tool." "Analytics platform." The reader should never have to guess.
-
-2. **Opening sentences must be concrete actions, not clever phrases.** Never start an article with something abstract or poetic. Start with what to do. "Start with X" beats "Not with Y, with Z" every time.
-
-3. **H2 headings are 8 words maximum.** Short, punchy, like a hook.
-
-4. **Titles must match what the article actually teaches.** If the article is about improving something that already exists, do not title it as if you are building something new. The title sets the expectation. The content must deliver exactly that.
-
-5. **"Where to Start" and actionable sections must be universally applicable.** Do not assume the reader works in a specific niche. Use general examples that work for any reader in the target audience.
-
-6. **No brand name in title tags.** No SEO value for a new domain with no brand recognition. Drop "| Sucana" or any brand suffix.
-
-7. **All publish dates must be unique.** Never deploy two articles on the same date.
-
-8. **Always show the full article in chat after every change.** Output every word as markdown in the response. Do not use the Read tool (collapses in VSCode). No exceptions.
-
-9. **Pillar pages link to ALL cluster articles in their pillar. Every cluster article links back.** After deploying a pillar page, run retroactive linking immediately.
-
-10. **Do not write steps that assume niche-specific tools or workflows.** If the article is for a broad audience, use examples any reader would recognize. Only use niche-specific references when the article is explicitly about that niche.
-
-**How to update this list:** When Virgil corrects something during an article session, add the correction here as a new numbered rule immediately. Do not wait until end of session. Cap at 25-30 rules. Merge similar rules. Only remove a rule when it has been absorbed into an automated bash check.
-
----
 
 **Structure every article with these sections:**
 
@@ -481,13 +474,16 @@ These are corrections from Virgil. Each one is a mistake that was made and corre
 
 ---
 
-### Step 5a: Write ONLY the Opening H2 + Answer — Stop Here
+### Step 5a: Write ONLY the Opening — Stop Here
 
 **This sub-step is its own moment. Do not write anything else until this is shown.**
 
-Write:
-1. The H2 question (the exact question the article answers)
-2. A 2-3 sentence direct answer directly below the H2
+Write exactly this sequence:
+
+1. The H2 question (the exact question the article answers) — SEO anchor, comes first
+2. Result sentence — 1 line, a real number or outcome from Sucana, Victor's agency, or our work. No generic claims. No invented stats.
+3. Story bridge — 2-3 sentences from our perspective (Sucana, Victor, Vinod, or a real client situation). The before. What was broken or hard. How the thing we're about to explain changed it.
+4. Transition line — "Here's exactly what we did." or equivalent. One sentence. Leads into the steps.
 
 Then **stop**. Show just this to confirm the opening is right before writing the full article.
 
@@ -495,11 +491,11 @@ Then **stop**. Show just this to confirm the opening is right before writing the
 ```
 ## What Are the Best ChatGPT Prompts for PPC Managers?
 
-The best ones start with your client's actual data, not a generic question.
+Victor's team cut campaign review time from 3 hours to 20 minutes with one prompt change.
 
-Feed ChatGPT the spend, ROAS, campaign history, and what the client keeps complaining about. Then ask.
+They were asking ChatGPT generic questions and getting generic answers back. The fix was feeding it actual client data first — spend, ROAS, campaign history, what the client keeps complaining about. Once the context was in, the answers became useful.
 
-Generic prompts give generic answers.
+Here's exactly what changed.
 ```
 
 **WRONG:**
@@ -509,14 +505,22 @@ To get useful answers from ChatGPT as a PPC manager...  ← floating paragraph b
 ## Why Most Prompts Don't Work  ← question buried, came second
 ```
 
+**ALSO WRONG:**
+```
+## What Are the Best ChatGPT Prompts for PPC Managers?
+
+The best ones start with your client's actual data, not a generic question.  ← generic advice, no proof
+```
+
 Rules:
-- H2 question comes first. Before any paragraph. Before any story. Before anything.
-- The answer to that question is 2-3 sentences directly below the H2. Short and direct.
-- Story comes after the answer — in Step 5b.
+- H2 question comes first. Before any paragraph. Before anything.
+- Result sentence is always from our world — Sucana, Victor, Vinod, a real campaign, a real number.
+- Story bridge is always first-person, always from our perspective. Never generic "many agencies find..."
+- Transition line leads into the steps. Short. One sentence.
 - All other H2s in the body can be statements or questions — does not matter.
 - Only this first H2 must be the question that matches the article's intent.
 
-🛑 **Show the opening H2 + answer. Wait for confirmation before proceeding to Step 5b.**
+🛑 **Show the opening H2 + result + story + transition. Wait for confirmation before proceeding to Step 5b.**
 
 ---
 
@@ -524,103 +528,9 @@ Rules:
 
 After opening is confirmed, write the full article hitting the word count target from the CSV.
 
-**Do NOT write the FAQ section in this step — that's Step 5c.**
+**Start with** the confirmed opening H2 + answer from Step 5a, then add the story, then the full body.
 
----
-
-#### FIXED ARTICLE TEMPLATE — follow this order every time, no exceptions
-
-**1. H2 question + direct answer (2-3 sentences)**
-
-The very first H2 is the question the article answers. Directly below it: 2-3 sentences that answer the question. Short, direct, no fluff.
-
-**2. Story H2 heading + Sucana story (BEFORE the steps)**
-
-The story section MUST have its own H2 heading. Always. No exceptions. The heading goes directly above the story, after the opening answer.
-
-The heading must be sharp, specific, and **8 words maximum** — it names what happened, not a generic label. Examples:
-- "## What I Found in ChatGPT"
-- "## The Call That Changed Our Pricing"
-- "## Victor Ran the Numbers. I Froze."
-
-Never: "## The Story" or "## Background" or "## My Experience."
-
-Then the story follows under that heading. Every how-to article needs a real story from building Sucana — sourced from content-ideas.md — before the guide begins. Not a client story. Not a made-up anecdote. A real moment: something that happened, something Virgil tested, a conversation with Vinod or Victor, a problem they hit, a result they saw.
-
-The story must have:
-- A real moment (what happened)
-- Tension or a problem (what was wrong or unknown)
-- What Virgil did or discovered
-- One sentence that lands the big idea before the steps start
-
-The story sits between the opening answer and Step 1. It is the emotional reason to keep reading. The steps are the practical payoff.
-
-**WRONG (no story, jumps straight to steps):**
-```
-Most agencies are losing traffic to AI search. Here is what to do about it.
-
-## Step 1: Pull your traffic data
-```
-
-**CORRECT (story H2 heading + story, then steps):**
-```
-## How Are Digital Marketing Agencies Adapting to AI Search?
-
-Most are not. That's the honest answer. The agencies moving fast made one call: stop treating Google as the only game.
-
-## What I Saw When I Searched for Sucana in ChatGPT
-
-When we started building Sucana, I typed our five core questions into ChatGPT and Perplexity...
-
-[3-5 paragraphs of real story — real tension, real discovery, real result]
-
-Structure matters more than volume.
-
-Here is the process, in order.
-
-## Step 1: Pull your traffic data
-```
-
-THE STRUCTURE IS ALWAYS:
-1. H2 question (the article's main question)
-2. 2-3 sentence direct answer
-3. **H2 story heading** (sharp, specific — names what happened)
-4. Story text (3-5 paragraphs from content-ideas.md)
-5. One big idea sentence
-6. Transition line
-7. Steps
-8. FAQ
-
-**3. One big idea (stated before the steps start)**
-
-End the story section with one sentence that names the core insight. This is the thing the reader should remember even if they forget the steps. Example: "Structure matters more than volume." Or: "The problem is not the content. It is where the answer lives inside the content."
-
-**4. Transition line**
-
-One short line that moves from the story into the guide. Examples:
-- "Here is the process, in order."
-- "Here is what I did, step by step."
-- "Here is the system."
-
-**5. Steps**
-
-Each step follows this pattern — write it like a friend explaining, never like an IKEA manual:
-
-```
-## Step N: [Action Title]
-
-[What to do — 2-3 sentences conversational, not clinical]
-
-[Why it works — one sentence]
-
-[What happened when I did it — real result, real number if available]
-```
-
-Never write numbered sub-bullets inside a step. Never start a step with "First, you should." Talk through it. The result is the proof.
-
-**6. FAQ (10 questions minimum — Step 5c)**
-
----
+**Do NOT write the "in practice" section or FAQ in this step — those are Steps 5c and 5d.**
 
 **IMPORTANT — Image Placement Planning:**
 While writing the article, identify **2-3 spots** where an image would add real value to the reader. Mark these spots with image placeholders. Good image locations are:
@@ -641,12 +551,11 @@ Number them sequentially: `placeholder-image-1.png`, `placeholder-image-2.png`, 
 
 **Content structure rules (for Google AND LLM citation):**
 
-1. **Question H2 first**: The very first H2 is a question that directly matches the article's topic. The 2-3 sentences below it directly answer that question. Story comes after the answer, never before.
+1. **Question H2 first**: The very first H2 is a question that directly matches the article's topic. Directly below it: result sentence (real number/outcome from our world), story bridge (2-3 sentences from Sucana/Victor/Vinod perspective), transition line. This IS the answer — just delivered through proof and story, not generic advice. The story is part of the opening, not a section that comes after it.
 
-2. **Question-based H2 headings**: Use headings that mirror natural language queries. **All H2 headings must be 8 words maximum.** Short, punchy, like a hook.
-   - Good: `## How Much Does a Dashboard Cost?`
+2. **Question-based H2 headings**: Use headings that mirror natural language queries.
+   - Good: `## How Much Does a PPC Dashboard Cost?`
    - Bad: `## Pricing Information`
-   - Bad: `## How Much Does a PPC Dashboard Cost for Your Agency?` (too long)
 
 3. **Use H2 for main sections, H3 for subsections.** Never skip levels.
 
@@ -673,10 +582,50 @@ Structure depends on article type:
 **Problem Articles:** Pain point → real examples → why it happens → what to do about it
 **Data Articles:** Research-backed, statistics, benchmarks, tables, with Sucana's perspective woven in
 **Comparison articles:** Fair analysis, pros/cons, clear recommendation, honest about where Sucana fits
-**Tutorial articles:** Walk them through it like a friend, not an IKEA manual. Steps sound like "The first thing I look for is X" — not "Step 1: Do X." Practical and actionable, but always in Virgil's first-person voice.
+**Tutorial articles:** Walk them through it like a friend, not an IKEA manual. Steps sound like "The first thing I look for is X" — not "Step 1: Do X." Practical and actionable, but always in Virgil's first-person voice. Every step ends with proof it worked: a real number, a real outcome, a one-line result from Sucana or Victor's agency. No step is advice-only.
 **Trend Articles:** Current data, what's changing, what it means for agencies, Sucana's take
+**How-To articles (uses how-to-draft format):** Only applies when Article Path = "How-To" from Step 1. Uses the rigorous stage format from the how-to-draft skill. Each section of the article maps from a how-to-draft stage:
 
-**P4 Experiment articles (special rules):** These are documentary content. We ran a test. Here are the real numbers. Never invent outcomes. Structure: hypothesis → what we did → actual results (with real numbers) → what we learned → what we'd do differently. If there's no real test data available from content-ideas.md or Fireflies, stop and ask Virgil for the actual data before writing. Do NOT fabricate experiment results.
+| How-to-draft stage element | SEO article translation |
+|---|---|
+| **Do this:** Type: "[prompt]" | Conversational intro + prompt in a code block. "Open Claude Code and tell it..." or "I typed this into Claude:" followed by the prompt in a copyable code block. |
+| **What happens:** | Woven into the narrative after the code block: "Claude came back with..." or "What I got back was..." Max 2 sentences. |
+| **We tested this by:** | Becomes the proof paragraph. Real numbers, real outcomes, real fixes. "I checked the output and found 7 story angles. Two taught the same lesson so I told Claude to keep the stronger one." This is what makes the article credible. |
+| **Why we did this:** | One-line punch that closes the section. Standalone line. |
+| Direction changes ("Then we said:") | The most valuable content. "That didn't work. The action items were pulling priorities as tasks. So I told Claude to add a filter: can someone check this off by end of week? If no, it's not an action item." |
+
+**How-To additional rules:**
+
+1. **Every prompt is copyable.** The reader copies the exact text from the code block into Claude Code and gets the same result.
+
+2. **"Before You Start" section is mandatory.** List everything the reader needs: Claude account, API keys, tools, files. Keep it short.
+
+3. **Jargon gets explained on first mention.** Use this list (explain each term the FIRST time it appears, never repeat):
+
+   - **.env file** — "A file that stores your passwords and API keys. It stays on your computer and never gets shared."
+   - **PRODUCT.md** — "Your project's memory. Documents what you built, what decisions you made, and where everything lives."
+   - **SKILL.md** — "The instruction file that tells Claude what to do. Think of it as a recipe card."
+   - **GitHub** — "Where we store finished code so anyone can download it. A public folder on the internet."
+   - **API** — "How two tools talk to each other. When we say 'Beehiiv API,' it means Claude can look up subscribers without you logging in."
+   - **Next.js** — "The tool that builds the website. The engine behind the page."
+   - **Vercel** — "The service that puts the website on the internet. Push a file, Vercel updates the site automatically."
+   - **MCP** — "How Claude connects to external tools. Like plugging in a cable between Claude and another app."
+   - **CTA** — "Call to Action. The line that tells people what to do next."
+   - **Funnel** — "Shows how people move through stages. Each stage has fewer people than the one before."
+   - **CSV** — "A spreadsheet file. When you export data from a tool, it downloads as a CSV."
+   - **API route** — "A small piece of code on the website that runs when someone clicks a button."
+   - **Guardrails** — "Writing rules. Banned words and patterns that make content sound like AI wrote it."
+   - **PRD** — "The plan. What we're building, why, and in what order."
+
+   This list grows. When the checker flags an unexplained term, add it here permanently.
+
+4. **Two mandatory sections in every how-to article:**
+   - Early: a section about creating the PRODUCT.md ("Before we kept building, we saved what we had so far")
+   - Last section before "What We'd Do Differently": updating the PRODUCT.md ("When we come back to this project, this file tells us everything")
+
+5. **If a source draft exists (from Step 2.5):** Use every stage from the draft. Do not skip stages. Do not summarize. Every stage in the draft becomes a section in the article. If the draft has 14 stages, the article has 14 how-to sections.
+
+6. **If no source draft:** Write the how-to sections from scratch using the same format. Each section still needs: conversational prompt intro, code block, result narrative, proof paragraph, one-line punch.
 
 ### Dual Optimization (Google + LLM)
 
@@ -699,9 +648,41 @@ Structure depends on article type:
 
 ---
 
-### Step 5c: Write the FAQ — Dedicated Sub-Step
+### Step 5c: Write the "What This Looks Like in Practice" Section — MANDATORY
+
+**This section is mandatory in every article. It comes immediately before the FAQ.**
+
+Write a before/after story using a real person from our world: Victor, Vinod, a Sucana beta tester, or a real client situation. Never invent. Source the story from content-ideas.md (Step 4 rules apply).
+
+Structure:
+- Before: What their situation looked like before. Specific. Named. Real hours, real cost, real frustration.
+- After: What changed. Same specificity — hours saved, cost cut, results improved.
+- One punch line at the end that connects back to the article's main point.
+
+Format as flowing prose, not a comparison table. 150-250 words. First-person ("Victor runs a lead gen agency. Before we built this...").
+
+**CORRECT:**
+```
+## What This Looks Like in Practice
+
+Victor runs a lead gen agency. His Monday used to end at noon before he'd touched a single campaign.
+
+Seven to eleven every week: pulling Meta data, Google data, CRM exports, building the deck, writing the summary email. Same work, same format, same four hours. Every Monday.
+
+We built the reporting workflow in one afternoon. It runs automatically now. Victor spends 20 minutes reviewing it instead of building it.
+
+That's the difference between a workflow that exists and one that doesn't.
+```
+
+🛑 **Write this section, then move to FAQ.**
+
+---
+
+### Step 5d: Write the FAQ — Dedicated Sub-Step
 
 **This is its own moment. Treat it like generating images — a separate, deliberate action, not a footnote.**
+
+**The "in practice" section (Step 5c) must be written before starting this.**
 
 **10 questions minimum. No exceptions.**
 
@@ -755,7 +736,7 @@ For active campaigns, daily monitoring of key metrics catches problems before th
 
 ---
 
-## Step 5.5: Structure Checkpoint
+## Step 5b: Structure Checkpoint
 
 **Before generating images, show Virgil the FULL article body in chat. Read the article from the file using the Read tool and display every word. Then show the structure summary below it:**
 
@@ -777,7 +758,7 @@ Right question? Right angle? Say yes to continue or tell me what to change.
 
 ---
 
-## Step 5.6: Voice Check — Before Images
+## Step 5c: Voice Check — Before Images
 
 **This is a mandatory stop. Do not generate images until this clears.**
 
@@ -869,7 +850,7 @@ fig.update_layout(
     margin=dict(l=70, r=40, t=120, b=60),
     width=1200, height=675, bargap=0.5,
 )
-fig.write_image('/Users/virgilbrewster/My Drive/Sucana/Marketing/SEO/articles/images/{slug}-image-1.png', scale=2)
+fig.write_image('/Users/virgilbrewster/My Drive/Drive-sandbox/Sucana/Marketing/SEO/articles/images/{slug}-image-1.png', scale=2)
 print('Chart 1 saved.')
 PYEOF
 ```
@@ -929,7 +910,7 @@ fig.update_layout(
     margin=dict(l=70, r=40, t=120, b=60),
     width=1200, height=675,
 )
-fig.write_image('/Users/virgilbrewster/My Drive/Sucana/Marketing/SEO/articles/images/{slug}-image-2.png', scale=2)
+fig.write_image('/Users/virgilbrewster/My Drive/Drive-sandbox/Sucana/Marketing/SEO/articles/images/{slug}-image-2.png', scale=2)
 print('Chart 2 saved.')
 PYEOF
 ```
@@ -955,15 +936,15 @@ Alt text stays descriptive (SEO + accessibility). Path points to the blog image 
 Run `open` on each image file so it opens in macOS Preview where Virgil can actually see it:
 
 ```bash
-open "/Users/virgilbrewster/My Drive/Sucana/Marketing/SEO/articles/images/{slug}-image-1.png"
-open "/Users/virgilbrewster/My Drive/Sucana/Marketing/SEO/articles/images/{slug}-image-2.png"
+open "/Users/virgilbrewster/My Drive/Drive-sandbox/Sucana/Marketing/SEO/articles/images/{slug}-image-1.png"
+open "/Users/virgilbrewster/My Drive/Drive-sandbox/Sucana/Marketing/SEO/articles/images/{slug}-image-2.png"
 ```
 
 Also use the Read tool on each PNG so the image displays inline in chat:
 
 ```
-Read: /Users/virgilbrewster/My Drive/Sucana/Marketing/SEO/articles/images/{slug}-image-1.png
-Read: /Users/virgilbrewster/My Drive/Sucana/Marketing/SEO/articles/images/{slug}-image-2.png
+Read: /Users/virgilbrewster/My Drive/Drive-sandbox/Sucana/Marketing/SEO/articles/images/{slug}-image-1.png
+Read: /Users/virgilbrewster/My Drive/Drive-sandbox/Sucana/Marketing/SEO/articles/images/{slug}-image-2.png
 ```
 
 Then output:
@@ -1005,7 +986,7 @@ fi
 echo "Banned phrases:" && grep -in "here's the thing\|here's why\|here's how\|most people don't\|you need to\|you should\|that's the edge" "$ARTICLE_PATH" || echo "NONE"
 
 # CHECK 2b: Complex vocabulary — words Virgil would never say
-COMPLEX_WORDS=$(grep -in "regardless\|commentary\|leverage\|synergy\|unlock\|empower\|revolutionary\|game-changing\|best-in-class\|comprehensive\|furthermore\|additionally\|nevertheless\|consequently\|utilize\|utilise\|facilitate\|demonstrate\|methodology\|ecosystem\|paradigm\|scalable\|robust\|seamless\|actionable\|impactful\|holistic\|streamline\|benchmark\|bandwidth\|granular\|alignment\|landscape\|trajectory\|optimiz" "$ARTICLE_PATH" || true)
+COMPLEX_WORDS=$(grep -in "regardless\|commentary\|leverage\|synergy\|unlock\|empower\|revolutionary\|game-changing\|best-in-class\|comprehensive\|furthermore\|additionally\|nevertheless\|consequently\|utilize\|utilise\|facilitate\|demonstrate\|attribution\|methodology\|framework\|ecosystem\|paradigm\|scalable\|robust\|seamless\|actionable\|impactful\|holistic\|streamline\|benchmark\|bandwidth\|granular\|alignment\|landscape\|trajectory\|narrative\|optimiz" "$ARTICLE_PATH" || true)
 if [ -n "$COMPLEX_WORDS" ]; then
   echo "❌ FAIL: Complex words found — replace with plain language a 7-year-old understands:"
   echo "$COMPLEX_WORDS"
@@ -1038,43 +1019,6 @@ fi
 # CHECK 3: Word count
 echo "Word count:" && wc -w < "$ARTICLE_PATH"
 
-# CHECK 3c: H2 WORD COUNT — all H2 headings must be 8 words maximum
-echo "H2 word count check:"
-H2_LONG=$(python3 -c "
-import re
-lines = open('$ARTICLE_PATH').readlines()
-fails = []
-for i, line in enumerate(lines):
-    if line.startswith('## '):
-        heading = line.strip().lstrip('# ').strip()
-        wc = len(heading.split())
-        if wc > 8:
-            fails.append((i+1, wc, heading))
-for f in fails:
-    print(f'  Line {f[0]}: [{f[1]} words] {f[2]}')
-print(f'LONG H2 COUNT: {len(fails)}')
-" 2>/dev/null)
-echo "$H2_LONG"
-LONG_H2_COUNT=$(echo "$H2_LONG" | grep "LONG H2 COUNT:" | grep -o "[0-9]*" || echo "0")
-if [ "$LONG_H2_COUNT" -gt 0 ] 2>/dev/null; then
-  echo "❌ FAIL: $LONG_H2_COUNT H2 heading(s) over 8 words. Shorten every H2 to 8 words max. Do not proceed until fixed."
-else
-  echo "✅ PASS: All H2 headings are 8 words or under."
-fi
-
-# CHECK 3b: STORY H2 HEADING — the second H2 must be a specific story heading, not a step and not a generic label
-SECOND_H2=$(grep -n "^## " "$ARTICLE_PATH" | sed -n '2p')
-SECOND_H2_TEXT=$(echo "$SECOND_H2" | cut -d: -f2-)
-echo "Second H2: $SECOND_H2_TEXT"
-# Fail if second H2 starts with "Step" or is a generic label
-if echo "$SECOND_H2_TEXT" | grep -qiE "^## Step |^## Background|^## The Story|^## My Experience|^## Introduction|^## Overview|^## Context"; then
-  echo "❌ FAIL: Second H2 is a step or generic label — '$SECOND_H2_TEXT'. The second H2 MUST be a sharp, specific story heading (e.g. '## What I Saw When I Searched for Sucana in ChatGPT'). Do not proceed until fixed."
-elif [ -z "$SECOND_H2_TEXT" ]; then
-  echo "❌ FAIL: No second H2 found. Every article needs a story H2 heading immediately after the opening Q&A. Do not proceed until fixed."
-else
-  echo "✅ PASS: Story H2 present: $SECOND_H2_TEXT"
-fi
-
 # CHECK 4: QUESTION FIRST — detect any non-blank paragraph before the first ## heading
 FIRST_H2_LINE=$(grep -n "^## " "$ARTICLE_PATH" | head -1 | cut -d: -f1)
 echo "First H2 at line: $FIRST_H2_LINE — $(grep -m 1 "^## " "$ARTICLE_PATH")"
@@ -1091,7 +1035,7 @@ fi
 FAQ_COUNT=$(awk '/^## Frequently Asked Questions/{found=1; next} found && /^## /{found=0} found && /^### /{count++} END{print count+0}' "$ARTICLE_PATH")
 echo "FAQ question count (inside FAQ section only): $FAQ_COUNT"
 if [ "$FAQ_COUNT" -lt 10 ]; then
-  echo "❌ FAIL: Only $FAQ_COUNT FAQ questions found. Need 10 minimum. Go back to Step 5c and add more questions from the PAA list before proceeding."
+  echo "❌ FAIL: Only $FAQ_COUNT FAQ questions found. Need 10 minimum. Go back to Step 5d and add more questions from the PAA list before proceeding."
 else
   echo "✅ PASS: $FAQ_COUNT FAQ questions found."
 fi
@@ -1306,7 +1250,7 @@ fi
 
 **If CHECK 4 outputs ❌ FAIL:** Delete the floating paragraph. The first H2 IS the answer opener. Answer in 2-3 sentences below the H2, then the story. Do not proceed until the check outputs ✅ PASS.
 
-**If CHECK 5 outputs ❌ FAIL:** Go back to Step 5c and add more questions from the PAA list. Do not proceed until the check outputs ✅ PASS with 10+.
+**If CHECK 5 outputs ❌ FAIL:** Go back to Step 5d and add more questions from the PAA list. Do not proceed until the check outputs ✅ PASS with 10+.
 
 **If CHECK 6 outputs ❌ FAIL:** Find every `---` line in the article and delete it. Sections are separated by H2 headings only. Do not proceed until check outputs ✅ PASS.
 
@@ -1378,6 +1322,38 @@ TRUTH CHECK:
 IF ANY FAIL → FIX BEFORE SHOWING
 ```
 
+### 7c: How-To Article Checker (CONDITIONAL — only run if Article Path = "How-To")
+
+**Skip this entire section if the article is not a how-to.** Only runs for articles flagged in Step 1.
+
+Go through the article section by section. For each how-to section, run these 7 checks:
+
+| # | Check | Question | If FAIL |
+|---|-------|----------|---------|
+| 1 | Action clear | Does the section tell the reader exactly what to type or do? | Add the missing action |
+| 2 | Prompt copyable | Is there a code block with the exact Claude prompt the reader can copy? | Add the code block |
+| 3 | Result verifiable | Does the section tell the reader what they should see after running the prompt? | Add what to expect |
+| 4 | No gap | Would a reader be lost between this section and the next? | Add a bridge |
+| 5 | No jargon | Is there a technical term that isn't explained? | Use the jargon list from Pattern 8 (How-To) |
+| 6 | Proof included | Does the section have a real test result with real numbers woven into the narrative? | Add proof |
+| 7 | Prerequisites | Does "Before You Start" list everything needed? | Add the missing item |
+
+**Show the checker results:**
+
+```
+HOW-TO CHECKER:
+Section 1: ✅ ✅ ✅ ✅ ✅ ✅ ✅
+Section 2: ✅ ✅ ✅ ❌ ✅ ✅ ✅ — Gap: reader doesn't know how to open Claude Code yet
+Section 3: ✅ ✅ ✅ ✅ ❌ ✅ ✅ — "MCP" not explained
+...
+```
+
+Fix all failures. Re-run. Only proceed when all sections pass all 7 checks.
+
+**PRODUCT.md cross-check (if PRODUCT.md was loaded in Step 2.5):**
+
+Compare every feature in the PRODUCT.md against sections in the article. If a feature has no section, ADD IT. If a section covers something not in the PRODUCT.md, flag it for the user.
+
 ---
 
 ## Step 8: Show Article for Review
@@ -1406,8 +1382,8 @@ Images: [number] generated (Nanobanana, approved in Step 6)
 
 **IMAGES — show as clickable links (computer:// format), one per line:**
 
-[Image 1 — [description]](computer:///Users/virgilbrewster/My%20Drive/Sucana/Marketing/SEO/articles/images/[article-slug]-image-1.png)
-[Image 2 — [description]](computer:///Users/virgilbrewster/My%20Drive/Sucana/Marketing/SEO/articles/images/[article-slug]-image-2.png)
+[Image 1 — [description]](computer:///sessions/intelligent-zen-mccarthy/mnt/Sucana/Marketing/SEO/articles/images/[article-slug]-image-1.png)
+[Image 2 — [description]](computer:///sessions/intelligent-zen-mccarthy/mnt/Sucana/Marketing/SEO/articles/images/[article-slug]-image-2.png)
 
 RULE: Always show image links here. Never skip. Never describe. Just the clickable links.
 
@@ -1434,23 +1410,21 @@ Ensure all generated images are saved in: `Marketing/SEO/articles/images/`
 In `Marketing/SEO/Article_Production_System.xlsx`, mark the article as "In Progress" (it's written but not yet deployed):
 
 ```bash
-python3 -c "
+python3 << 'EOF'
 import openpyxl
-# REPLACE THESE VALUES before running:
-article_number = 25        # actual article number (integer)
-slug = 'my-article-slug'   # actual slug (no leading slash)
-
-wb = openpyxl.load_workbook('/Users/virgilbrewster/My Drive/Sucana/Marketing/SEO/Article_Production_System.xlsx')
+wb = openpyxl.load_workbook('/Users/virgilbrewster/My Drive/Drive-sandbox/Sucana/Marketing/SEO/Article_Production_System.xlsx')
 ws = wb['Article Production System']
 for row in ws.iter_rows(min_row=2):
-    if row[0].value == article_number:
-        row[10].value = 'In Progress'            # Status column (K)
-        row[11].value = '/blog/' + slug          # URL Slug column (L)
+    if row[0].value == ARTICLE_NUMBER:
+        row[10].value = 'In Progress'   # Status column (K)
+        row[11].value = '/blog/SLUG'    # URL Slug column (L)
         break
-wb.save('/Users/virgilbrewster/My Drive/Sucana/Marketing/SEO/Article_Production_System.xlsx')
+wb.save('/Users/virgilbrewster/My Drive/Drive-sandbox/Sucana/Marketing/SEO/Article_Production_System.xlsx')
 print('Production System updated: In Progress')
-"
+EOF
 ```
+
+Replace `ARTICLE_NUMBER` with the article's # and `SLUG` with the actual slug.
 
 ### Tag the used story in content-ideas.md
 
@@ -1471,7 +1445,7 @@ This is mandatory. No memory between sessions — the file is the only record. I
 ### 10a: Load the Schema
 
 Read this file before building the prompt:
-`/Users/virgilbrewster/My Drive/Sucana/Sucana Agents/Ad Image Generator/skills/nano_banana_image.md`
+`/Users/virgilbrewster/My Drive/Drive-sandbox/Sucana/Sucana Agents/Ad Image Generator/skills/nano_banana_image.md`
 
 Use the Blog Hero Image JSON structure from that file.
 
@@ -1529,55 +1503,44 @@ Once the concept is approved, build the full JSON using the nano_banana_image.md
 - `negative_prompt` MUST include: `"text"`, `"words"`, `"letters"`, `"numbers"`, `"writing"`, `"signage"`, `"watermarks"`, `"logos"`, `"bad anatomy"`, `"deformities"`, `"cartoon"`, `"illustration"`, `"3D render"`, `"CGI"`, `"rendered"`
 
 Save JSON to:
-`/Users/virgilbrewster/My Drive/Sucana/Sucana Agents/Ad Image Generator/prompts/blog/{slug}-cover.json`
+`/Users/virgilbrewster/My Drive/Drive-sandbox/Sucana/Sucana Agents/Ad Image Generator/prompts/blog/{slug}-cover.json`
 
-### 10d: Generate 3 Variants Using Nano Banana MCP
+### 10d: Generate 3 Variants
 
-**DO NOT use generate.py — it does not exist. Use the mcp__plugin_creative_nano-banana__generate_image tool directly.**
+```bash
+cd "/Users/virgilbrewster/My Drive/Drive-sandbox/Sucana/Sucana Agents/Ad Image Generator" && python3 scripts/generate.py --count 3 "prompts/blog/{slug}-cover.json"
+```
 
-Call it 3 times with the same prompt (slight wording variations are fine). Each call saves to `/Users/virgilbrewster/My Drive/Sucana/generated_imgs/` with a timestamp filename. **Note the exact saved path from each MCP response output — you will need it for the Read tool.**
+Output saves to: `images/blog/{slug}-cover_v1.png`, `_v2.png`, `_v3.png`
 
 ### 10e: Show All 3 Variants to Virgil
 
-**⚠️ HARD RULE: After all 3 variants are generated, write an HTML preview file and open it in the browser. This is the ONLY reliable way Virgil sees the images. Do NOT skip this. Do NOT describe the images in text. OPEN THE HTML.**
+**MANDATORY: OPEN THE IMAGES SO VIRGIL CAN SEE THEM. Every single time. No exceptions. Do not describe them. Do not link them. OPEN THEM.**
 
-After all 3 generate_image calls, note the 3 saved paths from the MCP outputs. Then run this Python to write and open the preview:
+Run `open` on each image file so it opens in macOS Preview:
 
 ```bash
-python3 << 'PYEOF'
-slug = "{slug}"
-article_number = {N}
-path_v1 = "/Users/virgilbrewster/My Drive/Sucana/generated_imgs/{filename_v1}"
-path_v2 = "/Users/virgilbrewster/My Drive/Sucana/generated_imgs/{filename_v2}"
-path_v3 = "/Users/virgilbrewster/My Drive/Sucana/generated_imgs/{filename_v3}"
+open "/Users/virgilbrewster/My Drive/Drive-sandbox/Sucana/Sucana Agents/Ad Image Generator/images/blog/{slug}-cover_v1.png"
+open "/Users/virgilbrewster/My Drive/Drive-sandbox/Sucana/Sucana Agents/Ad Image Generator/images/blog/{slug}-cover_v2.png"
+open "/Users/virgilbrewster/My Drive/Drive-sandbox/Sucana/Sucana Agents/Ad Image Generator/images/blog/{slug}-cover_v3.png"
+```
 
-html = f"""<!DOCTYPE html>
-<html><head><style>
-body {{ background: #111; font-family: sans-serif; color: white; padding: 40px; }}
-h1 {{ font-size: 18px; margin-bottom: 30px; color: #aaa; }}
-.variant {{ margin-bottom: 50px; }}
-.variant h2 {{ font-size: 14px; color: #888; margin-bottom: 10px; }}
-img {{ width: 100%; max-width: 960px; border-radius: 8px; display: block; }}
-</style></head><body>
-<h1>Hero Cover Variants — Article #{article_number}</h1>
-<div class="variant"><h2>Variant 1</h2><img src="{path_v1}"></div>
-<div class="variant"><h2>Variant 2</h2><img src="{path_v2}"></div>
-<div class="variant"><h2>Variant 3</h2><img src="{path_v3}"></div>
-</body></html>"""
+Also use the Read tool on each PNG so the image displays inline in chat:
 
-html_path = f"/Users/virgilbrewster/My Drive/Sucana/Marketing/SEO/articles/images/preview-{slug}-covers.html"
-with open(html_path, 'w') as f:
-    f.write(html)
-print(f"HTML written to: {html_path}")
-PYEOF
-
-open "/Users/virgilbrewster/My Drive/Sucana/Marketing/SEO/articles/images/preview-{slug}-covers.html"
+```
+Read: /Users/virgilbrewster/My Drive/Drive-sandbox/Sucana/Sucana Agents/Ad Image Generator/images/blog/{slug}-cover_v1.png
+Read: /Users/virgilbrewster/My Drive/Drive-sandbox/Sucana/Sucana Agents/Ad Image Generator/images/blog/{slug}-cover_v2.png
+Read: /Users/virgilbrewster/My Drive/Drive-sandbox/Sucana/Sucana Agents/Ad Image Generator/images/blog/{slug}-cover_v3.png
 ```
 
 Then output:
+
 ```
 HERO COVER VARIANTS: Article #[number]
-Preview opened in your browser — all 3 variants visible.
+
+Variant 1: [image displayed above]
+Variant 2: [image displayed above]
+Variant 3: [image displayed above]
 
 Which one? (1, 2, or 3 — or say regenerate for new variants)
 ```
@@ -1591,8 +1554,8 @@ After Virgil selects a variant, resize to **1200 x 675 pixels** (true 16:9 — p
 ```python
 from PIL import Image
 
-src = "/Users/virgilbrewster/My Drive/Sucana/Sucana Agents/Ad Image Generator/images/blog/{slug}-cover_v{N}.png"
-dest = "/Users/virgilbrewster/My Drive/Sucana/Marketing/SEO/articles/images/{slug}-cover.png"
+src = "/Users/virgilbrewster/My Drive/Drive-sandbox/Sucana/Sucana Agents/Ad Image Generator/images/blog/{slug}-cover_v{N}.png"
+dest = "/Users/virgilbrewster/My Drive/Drive-sandbox/Sucana/Marketing/SEO/articles/images/{slug}-cover.png"
 
 img = Image.open(src)
 # 1200x675 = true 16:9. Pure scale down, no crop. Never use 1200x630 — wrong ratio, clips heads.
@@ -1645,17 +1608,16 @@ Deploy now?
 title: "Your Post Title Here"
 excerpt: "A 1-2 sentence summary (120-160 chars). Factual, not marketing copy."
 date: "YYYY-MM-DD"
-lastModified: "YYYY-MM-DD"
 tags: ["tag1", "tag2", "tag3"]
 category: "category-slug"
 coverImage: "/images/blog/{slug}-cover.png"
 readingTime: "X min read"
-author: "Virgil Brewster"
+author: "Sucana"
 featured: false
 ---
 ```
 
-Use the category and tags for the article's pillar (see pillar defaults in Step 1). Set `date` and `lastModified` both to today's date.
+**For How-To articles:** Add `schema: "HowTo"` to the frontmatter. This enables HowTo structured data markup which helps Google display the article as a step-by-step result in search.
 
 **MDX body rules:**
 - Strip the SEO Frontmatter block — stays in local .md file only
@@ -1668,38 +1630,18 @@ Use the category and tags for the article's pillar (see pillar defaults in Step 
 Read `Marketing/SEO/BLOG-INSTRUCTIONS.md` at runtime for the GitHub PAT and exact git commands.
 
 ```bash
-# Clone only if not already cloned
-if [ ! -d "/tmp/www.sucana.ai" ]; then
-  git clone https://[PAT]@github.com/vinodsharma10x/www.sucana.ai.git /tmp/www.sucana.ai
-fi
-cd /tmp/www.sucana.ai
-git pull origin main
+git clone https://[PAT]@github.com/vinodsharma10x/www.sucana.ai.git
+cd www.sucana.ai
 git config user.name "vinodsharma10x"
 git config user.email "vinod@vinodsharma.co"
-
-# Copy MDX file into the repo
-cp "/Users/virgilbrewster/My Drive/Sucana/Marketing/SEO/articles/article-[##]-{slug}.mdx" "content/blog/{slug}.mdx"
-
-# Copy images into the repo
-cp "/Users/virgilbrewster/My Drive/Sucana/Marketing/SEO/articles/images/{slug}-cover.png" "public/images/blog/{slug}-cover.png"
-cp "/Users/virgilbrewster/My Drive/Sucana/Marketing/SEO/articles/images/{slug}-image-1.png" "public/images/blog/{slug}-image-1.png"
-cp "/Users/virgilbrewster/My Drive/Sucana/Marketing/SEO/articles/images/{slug}-image-2.png" "public/images/blog/{slug}-image-2.png"
-# image-3 is optional — only copy/add if it exists
-[ -f "/Users/virgilbrewster/My Drive/Sucana/Marketing/SEO/articles/images/{slug}-image-3.png" ] && \
-  cp "/Users/virgilbrewster/My Drive/Sucana/Marketing/SEO/articles/images/{slug}-image-3.png" "public/images/blog/{slug}-image-3.png"
 
 git add content/blog/{slug}.mdx
 git add public/images/blog/{slug}-cover.png
 git add public/images/blog/{slug}-image-1.png
 git add public/images/blog/{slug}-image-2.png
-[ -f "public/images/blog/{slug}-image-3.png" ] && git add public/images/blog/{slug}-image-3.png
+git add public/images/blog/{slug}-image-3.png
 
-git commit -m "Add blog post: {Post Title}
-
-- New blog post: content/blog/{slug}.mdx
-- Cover image: public/images/blog/{slug}-cover.png
-
-Authored-By: Virgil"
+git commit -m "Add blog post: {Post Title}"
 git push origin main
 ```
 
@@ -1710,36 +1652,35 @@ git push origin main
 ## Step 13: Verify Deployment + Update Production System
 
 1. Wait ~60 seconds for Vercel to deploy
-2. Check the live URL: `https://sucana.ai/blog/{slug}`
+2. Check the live URL: `https://www.sucana.ai/blog/{slug}`
 3. Confirm cover image loads
 4. Confirm in-article images load
 
 Once confirmed live, update the Production System to "Published":
 
 ```bash
-python3 -c "
+python3 << 'EOF'
 import openpyxl
 from datetime import date
-# REPLACE THIS VALUE before running:
-article_number = 25   # actual article number (integer)
-
-wb = openpyxl.load_workbook('/Users/virgilbrewster/My Drive/Sucana/Marketing/SEO/Article_Production_System.xlsx')
+wb = openpyxl.load_workbook('/Users/virgilbrewster/My Drive/Drive-sandbox/Sucana/Marketing/SEO/Article_Production_System.xlsx')
 ws = wb['Article Production System']
 for row in ws.iter_rows(min_row=2):
-    if row[0].value == article_number:
-        row[10].value = 'Published'           # Status column (K)
-        row[12].value = str(date.today())     # Publish Date column (M)
+    if row[0].value == ARTICLE_NUMBER:
+        row[10].value = 'Published'                  # Status column (K)
+        row[12].value = str(date.today())            # Publish Date column (M)
         break
-wb.save('/Users/virgilbrewster/My Drive/Sucana/Marketing/SEO/Article_Production_System.xlsx')
+wb.save('/Users/virgilbrewster/My Drive/Drive-sandbox/Sucana/Marketing/SEO/Article_Production_System.xlsx')
 print('Production System updated: Published', date.today())
-"
+EOF
 ```
 
+Replace `ARTICLE_NUMBER` with the article's #.
+
 ```
-✅ DEPLOYED: https://sucana.ai/blog/{slug}
+✅ DEPLOYED: https://www.sucana.ai/blog/{slug}
 Article #[number] is live. Production System updated.
 
-Live article: [Article Title](https://sucana.ai/blog/{slug})
+Live article: [Article Title](https://www.sucana.ai/blog/{slug})
 ```
 
 ---
@@ -1756,24 +1697,21 @@ Show both in chat for review. Do NOT auto-save.
 ## Pipeline Summary
 
 ```
-Step 1:   Load context + read SEO_GEO_Playbook.md + find next article  → 🛑 HUMAN LOOP #1
-Step 2:   Keyword research + show brief                                 → 🛑 HUMAN LOOP #2
-Step 3:   Load voice (Virgil_Voice_MASTER.md)
-Step 4:   Find story from content-ideas.md
-Step 5a:  Write opening H2 + answer only — stop and confirm
-Step 5b:  Write full article body (with image placeholders)
-Step 5c:  Write FAQ (10 questions minimum)
-Step 5.5: Structure checkpoint — H1, first H2, angle                   → 🛑 HUMAN LOOP #3
-Step 5.6: Voice check — first-person, not IKEA manual                  → 🛑 HUMAN LOOP #3b
-Step 6:   Generate 2 Plotly charts                                      → 🛑 HUMAN LOOP #4
-Step 7:   Self-check — BASH COMMANDS ON FILE, show output, fix failures before Step 8
-Step 8:   Show FULL article for review                                  → 🛑 HUMAN LOOP #5
-Step 9:   Save article + mark In Progress in XLSX + tag used story
-Step 10:  Generate hero cover image (Nanobanana, 3 variants)            → 🛑 HUMAN LOOP #6
-Step 11:  Final deploy confirmation                                     → 🛑 HUMAN LOOP #7
-Step 12:  Convert to MDX + copy files + push to GitHub
-Step 13:  Verify deployment + mark Published in XLSX
-Step 14:  Distribution assets (LinkedIn + email)
+Step 1:  Load context + find next article            → 🛑 HUMAN LOOP #1
+Step 2:  Keyword research + show brief               → 🛑 HUMAN LOOP #2
+Step 3:  Load voice
+Step 4:  Find story from content-ideas.md
+Step 5:  Write article (with image placeholders)
+Step 5b: Structure checkpoint — H1, first H2, angle → 🛑 HUMAN LOOP #3
+Step 6:  Generate 2 Plotly charts                   → 🛑 HUMAN LOOP #4
+Step 7:  Self-check — BASH COMMANDS ON FILE, show output, fix failures before Step 8
+Step 8:  Show FULL article for review                → 🛑 HUMAN LOOP #5
+Step 9:  Save article + mark In Progress in XLSX + tag used story in content-ideas.md
+Step 10: Generate hero cover image (Nanobanana, 3 variants) → 🛑 HUMAN LOOP #6
+Step 11: Final deploy confirmation                   → 🛑 HUMAN LOOP #7
+Step 12: Convert to MDX + push to GitHub
+Step 13: Verify deployment + mark Published in XLSX
+Step 14: Distribution assets (LinkedIn + email)
 ```
 
 ---
@@ -1785,7 +1723,7 @@ Step 14:  Distribution assets (LinkedIn + email)
 3. **Never skip keyword research.** Every article gets validated keywords before writing.
 4. **Never save without approval.** Always show in chat first.
 5. **Never invent stories.** Source every story from content-ideas.md. Check USED IN tags. Stay close to the raw notes — do not expand into invented scenes or dialogue.
-6. **Voice comes from Virgil_Voice_MASTER.md.** Read it in full in Step 3. Located at `Soul/Virgil_Voice/Virgil_Voice_MASTER.md`. Do NOT use FINAL or COMPLETE versions.
+6. **Voice comes from the Writer skill.** The approved posts database defines the style.
 7. **Dual optimize everything.** Every article serves both Google AND LLMs.
 8. **Update the CSV after every article.**
 9. **Hero image from Nanobanana.** Generate 3 variants in Step 10, Virgil picks one.
@@ -1797,7 +1735,7 @@ Step 14:  Distribution assets (LinkedIn + email)
 15. **Self-check is bash commands, not mental.** Run grep on the file. Show the output. Zero em dashes. Non-negotiable.
 16. **Tag used stories.** After every save, add `<!-- USED IN: article-XX-slug -->` to the used story in content-ideas.md. This is the only memory between sessions.
 17. **Question H2 comes first. Always.** The very first thing after frontmatter is an H2 question. Answer it in 2-3 sentences. Then story. Then rest of article. Never put a floating paragraph before the first H2. No exceptions.
-18. **FAQ is 10 questions minimum.** The bash check counts `### ` headers inside the `## Frequently Asked Questions` section only — must be 10+. If CHECK 5 outputs ❌ FAIL, go back to Step 5c and add more questions before proceeding.
+18. **FAQ is 10 questions minimum.** The bash check counts `### ` headers inside the `## Frequently Asked Questions` section only — must be 10+. If CHECK 5 outputs ❌ FAIL, go back to Step 5d and add more questions before proceeding.
 19. **No purple accent bar on charts.** Removed per Virgil's preference (Article #1). Do not add it back.
 20. **Section dividers `---` are banned from article body.** Use H2/H3 headings only for section breaks. CHECK 6 hard-fails on any `---` line found.
 21. **This file is the source of truth.** Located at `Marketing/SEO/SKILL.md`. After any edit, repackage using the skill-creator to sync the installed version.
