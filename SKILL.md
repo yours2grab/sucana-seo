@@ -86,28 +86,69 @@ If the article already has validated keyword research in these files:
 
 If no existing research found, proceed with live research below.
 
-### 2a: Research the Primary Keyword
+### 2a: Research the Primary Keyword (Ahrefs MCP)
 
-Use web search to gather real data on the CSV's assigned keyword:
+**IMPORTANT: Use Ahrefs MCP tools for keyword research. NEVER guess or use web search for volume/difficulty data.**
 
-1. **Search volume** — How many people search this monthly? Use keyword research tools and searches like `[keyword] search volume 2026` to find estimates.
-2. **Keyword difficulty** — How hard is it to rank? Check who currently owns page 1 — are they huge sites with massive authority, or smaller players we can beat?
-3. **SERP analysis** — What type of content currently ranks? (listicles, guides, tool pages, forums, thin content?) This tells us what Google thinks searchers want.
-4. **Content gap** — What are the top results missing? This is our angle in. If everyone writes generic overviews and nobody shares real data or founder experience, that's the gap we fill.
+**Tool split rule:** Ahrefs = keyword research BEFORE writing. Google Search Console = performance monitoring AFTER publishing. Never use Ahrefs for monitoring (burns credits). Never use GSC for new keyword research (it only shows keywords you already rank for).
 
-Search queries to run:
-- `[keyword]` — see what actually ranks on page 1
-- `[keyword] search volume keyword difficulty` — find volume estimates
-- `[keyword] site:reddit.com` or `site:quora.com` — find real questions people ask about this topic
-- Related searches and "People Also Ask" — find the long-tail variations
+Use the `mcp__ahrefs__doc` tool first to get the input schema for any Ahrefs tool you haven't used before.
 
-### 2b: Find Supporting Keywords
+**Step 1: Get primary keyword metrics**
 
-Every article needs a primary keyword plus 3-5 supporting long-tail keywords. These go naturally into H2s, body text, and FAQ answers. Search for:
+Call `mcp__ahrefs__keywords-explorer-overview` with:
+- `select`: `keyword,volume,difficulty,traffic_potential,parent_topic,parent_volume,cpc,intents`
+- `country`: `us`
+- `keywords`: the CSV's assigned keyword + 5-8 variations you think people might search
 
-- **Long-tail variations** — longer, more specific versions of the primary keyword
-- **Related questions** — "People Also Ask" style queries that real people type into Google
-- **LSI keywords** — semantically related terms Google expects to see in comprehensive content about this topic
+This gives exact monthly volume, difficulty score (0-100), and traffic potential. No guessing.
+
+**Step 2: Check if we already rank for related terms (GSC API — free, no credits)**
+
+Run a GSC API query to check if sucana.ai already has impressions/clicks for keywords related to this topic:
+
+```python
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+
+SCOPES = ['https://www.googleapis.com/auth/webmasters.readonly']
+SERVICE_ACCOUNT_FILE = '.credentials/gsc-service-account.json'
+credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+service = build('searchconsole', 'v1', credentials=credentials)
+
+response = service.searchanalytics().query(
+    siteUrl='sc-domain:sucana.ai',
+    body={
+        'startDate': '[30 days ago]',
+        'endDate': '[today]',
+        'dimensions': ['query'],
+        'dimensionFilterGroups': [{
+            'filters': [{'dimension': 'query', 'operator': 'contains', 'expression': '[keyword root]'}]
+        }],
+        'rowLimit': 25
+    }
+).execute()
+```
+
+This shows if we're already getting impressions for related terms — potential cannibalization or striking distance opportunities.
+
+**Step 3: SERP analysis** — Use web search to see what currently ranks on page 1. Note content type, quality, and gaps.
+
+**Step 4: Content gap** — What are the top results missing? This is our angle in.
+
+### 2b: Find Supporting Keywords (Ahrefs MCP)
+
+Call `mcp__ahrefs__keywords-explorer-matching-terms` with the primary keyword to find:
+- **Long-tail variations** with real volume data
+- Supporting keywords that should appear in H2s and body text
+
+Call `mcp__ahrefs__keywords-explorer-related-terms` with the primary keyword to find:
+- **Semantically related terms** Google expects in comprehensive content
+- **Questions people ask** — use these for FAQ sections
+
+Call `mcp__ahrefs__keywords-explorer-search-suggestions` for autocomplete-style variations.
+
+Pick 3-5 supporting keywords with the best volume-to-difficulty ratio. Every keyword must have real Ahrefs data — no guessing.
 
 ### 2c: Validate or Adjust
 
@@ -123,26 +164,35 @@ Present findings before proceeding:
 
 ```
 KEYWORD RESEARCH: Article #[number]
+Data source: Ahrefs MCP (real data, not estimates)
 
 PRIMARY KEYWORD: [keyword]
-Search Volume: [monthly estimate]
-Difficulty: [Low/Medium/High] — [one sentence on why]
-Current Page 1: [2-3 bullet summary of who ranks and what they wrote]
+Monthly Volume: [exact number from Ahrefs]
+Difficulty: [0-100 score] — [Low <30 / Medium 30-60 / Hard 60+]
+Traffic Potential: [number from Ahrefs]
+CPC: $[amount] — [shows commercial value]
+Parent Topic: [from Ahrefs] (volume: [parent volume])
+Intent: [informational/commercial/transactional from Ahrefs]
+
+GSC CHECK: [Already ranking? Position? Impressions? Or "No existing rankings"]
+
+SERP ANALYSIS: [2-3 bullet summary of who ranks and what they wrote]
 Our Edge: [one sentence — why we beat them]
 
 SUPPORTING KEYWORDS (weave naturally into article):
-1. [long-tail keyword] — [volume estimate if available]
-2. [long-tail keyword] — [volume estimate if available]
-3. [long-tail keyword] — [volume estimate if available]
+1. [keyword] — vol: [number], difficulty: [number]
+2. [keyword] — vol: [number], difficulty: [number]
+3. [keyword] — vol: [number], difficulty: [number]
 
 QUESTIONS PEOPLE ASK (use in FAQ section):
-1. [question from PAA or Reddit/Quora]
+1. [question from Ahrefs related terms or Reddit]
 2. [question]
 3. [question]
 4. [question]
 5. [question]
 
 RANKING STRATEGY: [2-3 sentences explaining HOW we rank]
+Ahrefs credits used this research: ~[number]
 
 Proceed with writing?
 ```
