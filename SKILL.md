@@ -15,6 +15,81 @@ Skipped step = article rejected. No exceptions. No interpretations.
 
 ---
 
+# 🚀 DEPLOY TARGET (permanent — 5× to never forget)
+
+> **🚀 DEPLOY REPO: `vinodsharma10x/sucana.ai`** — Next.js + MDX on Vercel. Must be authed as `vinodsharma10x` or use a PAT. Article goes in `content/blog/{slug}.mdx`. Images in `public/images/blog/{slug}-cover.png` etc. Push to `main`. Vercel auto-deploys in ~60s.
+
+> **🚀 DEPLOY REPO: `vinodsharma10x/sucana.ai`** — if `gh auth status` shows the wrong user, run `gh auth switch -u vinodsharma10x` OR clone with `git clone https://$GITHUB_PAT_VINODSHARMA10X@github.com/vinodsharma10x/sucana.ai.git /tmp/sucana-site`.
+
+> **🚀 DEPLOY REPO: `vinodsharma10x/sucana.ai`** — MDX body: strip SEO Frontmatter block + SEO Notes section; keep H1, H2/H3 headings, body, FAQ, image refs. Update image paths from `images/{slug}-*.png` to `/images/blog/{slug}-*.png`.
+
+> **🚀 DEPLOY REPO: `vinodsharma10x/sucana.ai`** — commit message: `Add blog post: {Post Title}`. Push directly to `main`. Do NOT create branches. Do NOT modify existing files. Co-author: vinodsharma10x if git identity allows.
+
+> **🚀 DEPLOY REPO: `vinodsharma10x/sucana.ai`** — verify live at `https://sucana.ai/blog/{slug}` ~60s after push. Vercel cache-busts on new commit. If 404 after 120s, check Vercel deployment log for MDX parse errors.
+
+---
+
+# ❓ GEO RULE — EVERY ARTICLE STARTS WITH A QUESTION
+
+**Non-negotiable. No exceptions. Ever.**
+
+The first `## ` heading in every Sucana blog post MUST be a question ending with `?`. Placed immediately after the meta line. No floating paragraph before it. No intro scene before it. No story before it.
+
+The answer (2-3 sentences) sits directly under the question. This is what Google AI Overviews, ChatGPT, Perplexity, and Claude lift and cite. Skip this and the article dies in AI search.
+
+Examples:
+- ✅ `## How do I save 2 hours a day on LinkedIn DMs with Claude?`
+- ✅ `## What is the best way to automate Meta Ads reports?`
+- ❌ `## Why I Did This` (statement, not a question)
+- ❌ `## The Problem I Was Trying to Solve` (statement, not a question)
+
+The story H2 (`## The Morning Inbox That Broke Me`, etc.) comes AFTER the question + answer, never before.
+
+Step 7 has a bash check that hard-fails the article if the first H2 does not end with `?`.
+
+---
+
+# 🖼️ NEVER DUPLICATE THE COVER IMAGE (5× to never forget)
+
+> **🖼️ NO INLINE COVER.** The cover image is set in the MDX frontmatter via `coverImage: "/images/blog/{slug}-cover.png"`. Next.js renders it automatically at the top of the page. Do NOT add `![cover](...)` in the article body. Two images on top = bug.
+
+> **🖼️ NO INLINE COVER.** When converting .md → .mdx, the cover reference lives ONLY in frontmatter. Never in body. In-article images (charts, screenshots) are fine — but the hero cover is never duplicated.
+
+> **🖼️ NO INLINE COVER.** If the local .md file has `![...](images/{slug}-cover.png)` at the top, DELETE that line before or during MDX conversion. Keep `coverImage:` in frontmatter as the only cover reference.
+
+> **🖼️ NO INLINE COVER.** The Guardian agent (see pre-show check) must verify: MDX body contains zero references to the cover image filename. If it does, fix before push.
+
+> **🖼️ NO INLINE COVER.** Article body opens with the first H2 question directly (per GEO rule), NOT with an image. Cover comes from frontmatter only. Inline images appear mid-body at chart/screenshot positions, never at the very top.
+
+---
+
+# 🤖 PRE-SHOW AGENT — runs before Virgil sees anything
+
+**Before showing the article preview, MDX, or live URL to Virgil, launch this agent and wait for PASS.**
+
+Agent prompt (paste verbatim):
+
+```
+You are the pre-show rule checker for the Sucana blog pipeline. You enforce two rules, every single time, no exceptions:
+
+RULE 1: GEO QUESTION-FIRST
+The article's first `## ` heading MUST end with `?`. No floating paragraph before it. No inline image before it. If the first H2 is a statement or the first thing after frontmatter is an image/paragraph, FAIL.
+
+RULE 2: NO DUPLICATE COVER IMAGE
+The MDX body MUST NOT contain any `![...](...cover.png)` reference. The cover image lives ONLY in frontmatter as `coverImage:`. If the cover filename appears anywhere in the body markdown, FAIL.
+
+Read the article file at {path}. Check both rules.
+
+If both PASS: output only `PRE-SHOW PASS`.
+If either FAILS: output `PRE-SHOW FAIL` followed by a bulleted list of each violation with line numbers. Include the exact line of text that violates the rule.
+
+No commentary. No suggestions beyond the violation list.
+```
+
+Run this agent after every edit to the article or MDX. If FAIL, fix and re-run. Never show Virgil a draft or a live URL until this returns `PRE-SHOW PASS`.
+
+---
+
 # 📎 CANONICAL TEMPLATE
 
 **The single source of truth for every Sucana blog post lives at:**
@@ -35,13 +110,33 @@ If TEMPLATE.md is missing, this skill hard-fails. Restore the file before runnin
 VAULT_ROOT: /Users/virgilbrewster/My Drive/Virgil Brain
 SUCANA_ROOT: /Users/virgilbrewster/My Drive/Virgil Brain/sucana
 ARTICLES_DIR: /Users/virgilbrewster/My Drive/Virgil Brain/sucana/Marketing/Channels/Blog/Blog Content
+ARTICLE_IMAGES_DIR: /Users/virgilbrewster/My Drive/Virgil Brain/sucana/Marketing/Channels/Blog/Blog Content/images
 VOICE_FILE: /Users/virgilbrewster/My Drive/Virgil Brain/sucana/Operations/virgil-voice-master.md
 STORIES_FILE: /Users/virgilbrewster/My Drive/Virgil Brain/sucana/Marketing/content-ideas-master.md
 STRATEGY_FILE: /Users/virgilbrewster/My Drive/Virgil Brain/sucana/Operations/strategy.md
 ICP_FILE: /Users/virgilbrewster/My Drive/Virgil Brain/sucana/Operations/icp.md
 STATE_DIR: /Users/virgilbrewster/My Drive/Virgil Brain/sucana/Marketing/SEO/.state
 TEMPLATE_FILE: /Users/virgilbrewster/.claude/skills/sucana-seo-blog-writer/TEMPLATE.md
-TEMPLATE_VERSION: 1.0
+TEMPLATE_VERSION: 1.1
+PREVIEW_SCRIPT: /Users/virgilbrewster/.claude/skills/sucana-seo-blog-writer/scripts/preview.py
+IMAGEGEN_SCRIPT: /Users/virgilbrewster/My Drive/Virgil Brain/Skills/imagegen/scripts/generate_image.py  # Nano Banana Pro + Gemini fallback; reads .env
+
+# === DEPLOY (Step 12) — CONFIGURED + VERIFIED 2026-04-15 ===
+WEBSITE_REPO: vinodsharma10x/www.sucana.ai    # verified via successful push
+WEBSITE_REPO_BLOG_DIR: content/blog/          # confirmed from repo
+WEBSITE_REPO_IMAGES_DIR: public/images/blog/  # confirmed from repo
+GITHUB_PAT_SOURCE: /Users/virgilbrewster/My Drive/.env.local  # key GITHUB_PAT_VINODSHARMA10X, saved 2026-04-15
+GIT_IDENTITY_NAME: vinodsharma10x
+GIT_IDENTITY_EMAIL: vinod@vinodsharma.co
+
+# DEPLOY PROCEDURE — NEVER ASK USER. RUN THESE COMMANDS:
+#   set -a && source "/Users/virgilbrewster/My Drive/.env.local" && set +a
+#   cd /tmp && rm -rf www.sucana.ai
+#   git clone "https://${GITHUB_PAT_VINODSHARMA10X}@github.com/vinodsharma10x/www.sucana.ai.git"
+#   cd www.sucana.ai
+#   git config user.name "vinodsharma10x" && git config user.email "vinod@vinodsharma.co"
+# Then build MDX (frontmatter + body with image paths rewritten images/... → /images/blog/...),
+# copy cover + charts to public/images/blog/, commit + push to main. Vercel auto-deploys 60-120s.
 ```
 
 If TEMPLATE_VERSION in this file does not match the `template_version` header inside TEMPLATE.md, skill refuses to run. Update one to match the other.
@@ -151,11 +246,21 @@ This skill manages the full pipeline from brief to published article, tracking p
 
 **This overrides everything. No exceptions. Ever.**
 
-- **Article written or edited?** → Generate an HTML preview file from the .md source (clean typography, Inter font, 720px max-width, local image paths resolved) and `open` it in the browser. Never output raw markdown in chat. Never use VS Code markdown preview.
-- **Images generated?** → Write an HTML file with all images embedded and `open` it in the browser.
-- **Cover image variants?** → HTML preview in browser.
+Use the built-in preview script. ONE command. No inline Python.
 
-Every review step that shows the article to Virgil must open an HTML file in the browser. Not VS Code. Not markdown in chat. HTML in the browser. Then say one line confirming it is open.
+```bash
+python3 /Users/virgilbrewster/.claude/skills/sucana-seo-blog-writer/scripts/preview.py "{article-path}.md"
+```
+
+The script renders the .md to HTML (Inter font, 720px max-width, purple/pink stage blocks matching brand CSS, code blocks, tables, FAQ formatting) and opens it in the default browser automatically.
+
+- **Article written or edited?** → Run `preview.py`. Do NOT output raw markdown in chat. Do NOT use VS Code markdown preview. Do NOT write inline Python.
+- **Images generated?** → `preview.py` renders embedded images automatically.
+- **Cover image variants?** → For cover variants only, generate a dedicated comparison HTML (see Step 10).
+
+Every review step that shows the article to Virgil runs `scripts/preview.py`. If the script fails, fix the script. Never fall back to markdown-in-chat or inline Python. One source of truth for previews.
+
+After running, say one line confirming the HTML is open and give the file path.
 
 ---
 
@@ -1246,7 +1351,8 @@ fi
 
 # CHECK 4: QUESTION FIRST — detect any non-blank paragraph before the first ## heading
 FIRST_H2_LINE=$(grep -n "^## " "$ARTICLE_PATH" | head -1 | cut -d: -f1)
-echo "First H2 at line: $FIRST_H2_LINE — $(grep -m 1 "^## " "$ARTICLE_PATH")"
+FIRST_H2_TEXT=$(grep -m 1 "^## " "$ARTICLE_PATH")
+echo "First H2 at line: $FIRST_H2_LINE — $FIRST_H2_TEXT"
 FLOATING_PARA=$(awk "NR<$FIRST_H2_LINE && /^[A-Za-z]/{print; exit}" "$ARTICLE_PATH")
 if [ -n "$FLOATING_PARA" ]; then
   echo "❌ FAIL: Found floating paragraph before first ## heading:"
@@ -1254,6 +1360,18 @@ if [ -n "$FLOATING_PARA" ]; then
   echo "  FIX: Delete this paragraph. The article must start with the H2 question (after frontmatter). Do not proceed until fixed."
 else
   echo "✅ PASS: No floating paragraph before first H2."
+fi
+
+# CHECK 4a: FIRST H2 MUST END WITH ? (GEO RULE — every article opens with a question)
+# Non-negotiable. Reason: LLMs (ChatGPT, Claude, Perplexity, Google AIO) lift Q+A pairs directly
+# as citations. Article without question H2 gets ignored by AI search.
+if echo "$FIRST_H2_TEXT" | grep -Eq '\?[[:space:]]*$'; then
+  echo "✅ PASS: First H2 ends with a question mark (GEO rule)."
+else
+  echo "❌ FAIL: First H2 must be a question ending with '?'. Got: $FIRST_H2_TEXT"
+  echo "  FIX: Rewrite the first H2 as a real question. Example: '## How do I save 2 hours a day on LinkedIn DMs with Claude?'"
+  echo "  The question is the exact thing the article answers. The 2-3 sentence answer sits directly under it."
+  echo "  Do not proceed until the first H2 ends with '?'."
 fi
 
 # CHECK 5: FAQ count — only counts H3s inside the ## Frequently Asked Questions section

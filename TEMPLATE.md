@@ -1,21 +1,23 @@
 # Sucana Blog Template — CANONICAL
 
 ```yaml
-template_version: 1.0
+template_version: 1.1
 last_updated: 2026-04-15
 ```
 
-This is the ONE template for every Sucana blog post. Derived from 25 published articles. No other template. No "article types." No "depends on the article." This, every time.
+This is the ONE template for every Sucana blog post. Derived from 25 published articles + GEO rule (every post opens with a question so LLMs can quote the Q+A directly). No other template. No "article types." No "depends on the article." This, every time.
 
 ## The 12 required parts, in order
 
 1. **Title (H1)** — first-person: "How I built X" or "Why I built X". 40-70 characters.
 2. **Meta line** — one sentence under title with the primary keyword. 120-160 characters.
-3. **Intro** — 1 to 3 paragraphs, first-person, sets up the problem or the moment before any H2.
-4. **H2: Why I Did This** (or "The Problem I Was Trying to Solve")
-5. **H2: What I Built** (or "What I Asked Claude Code to Build")
-6. **H2: Before You Start** — tools, accounts, credentials the reader needs
-7. **H2: Step 1 to Step N** — 7 to 14 numbered step blocks. Each step:
+3. **H2 QUESTION (mandatory, non-negotiable, GEO rule)** — the exact question the article answers, phrased as a question, ending with `?`. This H2 comes FIRST, immediately after the meta line. No floating paragraph before it. No intro scene before it. No story before it. Example: `## How do I save 2 hours a day on LinkedIn DMs with Claude?`
+4. **Answer (2-3 sentences)** — direct answer to the H2 question, placed immediately under the H2. Short. Confident. Quotable. This is what Google and LLMs lift for snippets and citations.
+5. **Story H2** — descriptive story heading (8 words max, sharp, specific). Then 3-5 paragraphs of the real moment. This is where the "6am Bali" scene, Monday morning moment, or similar lives. Comes AFTER the answer, never before.
+6. **H2: Why I Did This** — the bigger reason, the pain, the problem that drove the build
+7. **H2: What I Built** — overview of the stack or workflow
+8. **H2: Before You Start** — tools, accounts, credentials the reader needs
+9. **H2: Step 1 to Step N** — 7 to 14 numbered step blocks. Each step:
    - Descriptive title: "## Step N: [Short Action Title]"
    - Natural prose inside (no repeating "Do this / What happens / Why" labels)
    - Exact Claude prompt as a copy-pasteable code block
